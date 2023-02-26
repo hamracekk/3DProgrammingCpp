@@ -1,0 +1,11 @@
+{
+  "Version": 1,
+  "ProjectMap": {
+    "14555ad5-2991-46e1-b982-5b7d92c69027": {
+      "ProjectGuid": "14555ad5-2991-46e1-b982-5b7d92c69027",
+      "DisplayName": "DirectX3D",
+      "ColorIndex": 0
+    }
+  },
+  "NextColorIndex": 1
+}
