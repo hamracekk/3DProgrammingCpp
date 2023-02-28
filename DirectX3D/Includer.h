@@ -17,5 +17,6 @@
 
 #include <Windows.h>
 #include <string>
+#include <sstream>
 #endif // !INCLUDER_H
 
