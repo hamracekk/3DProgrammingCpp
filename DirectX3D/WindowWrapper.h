@@ -5,6 +5,10 @@
 
 class Window
 {
+public:
+	Window(int width, int height, std::string&& name) noexcept;
+	~Window();
+	Window& operator=(const Window&) = delete;
 private:
 	/// <summary>
 	/// This Class will be singleton (private constructor)
@@ -23,14 +27,10 @@ private:
 		static WindowCore windowsCore; // static beacuse we want only single instance
 		HINSTANCE instance_; // handle to the window
 	};
-public:
-	Window(int width, int height, std::string& name) noexcept;
-	~Window();
-	Window& operator=(const Window&) = delete;
 private:
+	static LRESULT WINAPI StaticWindowMessageHandlerStart(HWND hHandle, UINT msg, WPARAM wParam, LPARAM lParam);
+	static LRESULT WINAPI CallWindowClassMessageHandler(HWND hHandle, UINT msg, WPARAM wParam, LPARAM lParam);
 	LRESULT CALLBACK CustomWindowProc(HWND hHandle, UINT msg, WPARAM wParam, LPARAM lParam);
-	size_t width_; // width of the window
-	size_t height_; // height of the window
 	HWND handle_; // Handle to the window
 	//Constants describing where should window spawn
 	const size_t leftCorner = 200;
