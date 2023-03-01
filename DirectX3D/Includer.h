@@ -18,5 +18,6 @@
 #include <Windows.h>
 #include <string>
 #include <sstream>
+#include "Exceptions.h"
 #endif // !INCLUDER_H
 
