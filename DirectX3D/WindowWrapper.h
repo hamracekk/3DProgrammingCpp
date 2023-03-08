@@ -3,6 +3,7 @@
 
 #include "Includer.h"
 #include "KeyboardWin.h"
+#include "WinMouse.h"
 
 const constexpr int bit30 = 0x40000000; // 30th bit in lParam
 
@@ -34,12 +35,16 @@ private:
 	static LRESULT WINAPI StaticWindowMessageHandlerStart(HWND hHandle, UINT msg, WPARAM wParam, LPARAM lParam);
 	static LRESULT WINAPI CallWindowClassMessageHandler(HWND hHandle, UINT msg, WPARAM wParam, LPARAM lParam);
 	LRESULT CALLBACK CustomWindowProc(HWND hHandle, UINT msg, WPARAM wParam, LPARAM lParam);
+public:
 	HWND handle_; // Handle to the window
 	//Constants describing where should window spawn
+	const size_t window_width_;
+	const size_t window_height_;
 	const size_t leftCorner = 200;
 	const size_t topCorner = 200;
 public:
 	WinKeyboard keyboard;
+	WinMouse mouse;
 };
 
 #endif //! WINDOW_WRAPPER_H

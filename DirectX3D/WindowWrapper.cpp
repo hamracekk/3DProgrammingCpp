@@ -31,7 +31,7 @@ Window::WindowCore::~WindowCore()
 	UnregisterClassA(coreName_, instance_); // unregistering window instance
 }
 
-Window::Window(int width, int height, std::string&& name) noexcept
+Window::Window(int width, int height, std::string&& name) noexcept : window_width_(width), window_height_(height)
 {
 	handle_ = CreateWindowA(WindowCore::GetName(), // Name of the class
 		name.c_str(), // Name of the window
@@ -109,6 +109,8 @@ LRESULT __stdcall Window::CallWindowClassMessageHandler(HWND hHandle, UINT msg, 
 LRESULT Window::CustomWindowProc(HWND hHandle, UINT msg, WPARAM wParam, LPARAM lParam)
 {
 	unsigned int key = static_cast<unsigned char>(wParam); // in wParam is tored information about key state
+	const POINTS point = MAKEPOINTS(lParam); // lParam contains mouse coordinates
+
 	switch (msg)
 	{
 	case WM_CLOSE:
@@ -131,15 +133,49 @@ LRESULT Window::CustomWindowProc(HWND hHandle, UINT msg, WPARAM wParam, LPARAM l
 	case WM_CHAR: // handling text input
 		keyboard.OnCharEvent(key);
 		break;
+	/// <summary>
+	/// Here we are going to handle mouse messages
+	/// </summary>
 	case WM_LBUTTONDOWN:
-	{
-		//relative to right left corner of client area
-		const POINTS point = MAKEPOINTS(lParam); //lParam contains information about x and y position
-		std::ostringstream oss;
-		oss << "(" << point.x << "," << point.y << ")";
-		SetWindowTextA(hHandle, oss.str().c_str());
-	}
-	break;
+		mouse.OnLeftPressedEvent(point.x, point.y);
+		break;
+	case WM_LBUTTONUP:
+		mouse.OnLeftReleaseEvent(point.x, point.y);
+		break;
+	case WM_RBUTTONDOWN:
+		mouse.OnRightPressedEvent(point.x, point.y);
+		break;
+	case WM_RBUTTONUP:
+		mouse.OnRightReleaseEvent(point.x, point.y);
+		break;
+	case WM_MOUSEMOVE:
+		if (point.x >= 0 && point.x < window_width_ 
+			&& point.y >= 0 && point.y < window_height_) // if mouse is not inside of the window
+		{
+			mouse.OnMouseMoveEvent(point.x, point.y);
+			if (!mouse.GetMouseIsInWindow()) // if was not inside of the window
+			{
+				SetCapture(handle_); // setting capture for our window
+				mouse.OnEnterWindowEvent();
+			}
+		}
+		else
+		{
+			if( mouse.GetLeftPressed() || mouse.GetRightPressed()) // outside of the window but still pressed some button
+				mouse.OnMouseMoveEvent(point.x, point.y);
+			else // both buttons are up
+			{
+				ReleaseCapture(); // ele we release capture on mouse
+				mouse.OnLeaveWindowEvent();
+			}
+		}
+		break;
+	case WM_MOUSEHWHEEL:
+		if (GET_WHEEL_DELTA_WPARAM(wParam) > 0) // in this case wParam conatins information about mouse scroll
+			mouse.OnScrollUpEvent(point.x, point.y);
+		else if(GET_WHEEL_DELTA_WPARAM(wParam) < 0)
+			mouse.OnScrollDownEvent(point.x, point.y);
+		break;
 	}
 	return DefWindowProc(hHandle, msg, wParam, lParam);
 }
