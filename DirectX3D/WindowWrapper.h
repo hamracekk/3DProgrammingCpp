@@ -2,8 +2,9 @@
 #define WINDOW_WRAPPER_H
 
 #include "Includer.h"
-
 #include "KeyboardWin.h"
+
+const constexpr int bit30 = 0x40000000; // 30th bit in lParam
 
 class Window
 {
@@ -37,7 +38,8 @@ private:
 	//Constants describing where should window spawn
 	const size_t leftCorner = 200;
 	const size_t topCorner = 200;
-
+public:
+	WinKeyboard keyboard;
 };
 
 #endif //! WINDOW_WRAPPER_H

@@ -24,6 +24,10 @@ int CALLBACK WinMain( HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR cmdLine, int c
 		{
 			TranslateMessage(&message); // Translation for WM_CHAR messages
 			DispatchMessage(&message); // This will send message to windowProcedure, which is handling messages
+			if (window.keyboard.KeyPressed(VK_SPACE))
+			{
+				MessageBoxA(NULL, "KEy is presssseeeed !!", "Key pressed", MB_OK);
+			}
 		}
 
 		if (result == -1)
