@@ -24,9 +24,14 @@ int CALLBACK WinMain( HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR cmdLine, int c
 		{
 			TranslateMessage(&message); // Translation for WM_CHAR messages
 			DispatchMessage(&message); // This will send message to windowProcedure, which is handling messages
-			if (window.keyboard.KeyPressed(VK_SPACE))
+			while (!window.mouse.BufferIsEmpty())
 			{
-				MessageBoxA(NULL, "KEy is presssseeeed !!", "Key pressed", MB_OK);
+				if (window.mouse.GetNextEvent().GetState() == MouseState::MOUSEMOVE)
+				{
+					std::ostringstream oss;
+					oss << "Position: (" << window.mouse.GetXPostion() << " , " << window.mouse.GetYPostion() << ")";
+					SetWindowTextA(window.handle_, oss.str().c_str());
+				}
 			}
 		}
 

@@ -159,12 +159,14 @@
     <ClCompile Include="KeyboardWin.cpp" />
     <ClCompile Include="MainWindowsEntry.cpp" />
     <ClCompile Include="WindowWrapper.cpp" />
+    <ClCompile Include="WinMouse.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Exceptions.h" />
     <ClInclude Include="Includer.h" />
     <ClInclude Include="KeyboardWin.h" />
     <ClInclude Include="WindowWrapper.h" />
+    <ClInclude Include="WinMouse.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
