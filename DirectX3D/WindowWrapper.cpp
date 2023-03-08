@@ -108,26 +108,28 @@ LRESULT __stdcall Window::CallWindowClassMessageHandler(HWND hHandle, UINT msg, 
 /// <returns>Result of the message processing</returns>
 LRESULT Window::CustomWindowProc(HWND hHandle, UINT msg, WPARAM wParam, LPARAM lParam)
 {
+	unsigned int key = static_cast<unsigned char>(wParam); // in wParam is tored information about key state
 	switch (msg)
 	{
 	case WM_CLOSE:
 		PostQuitMessage(69); // If message is of type of CLOSE -> than exit application, wParam = 69 -> exit code
 		return 0;
 		break;
-	case WM_KEYDOWN:
-		if (wParam == 'F')
+	case WM_KILLFOCUS:
+		keyboard.Cleare(); // If window losw focus we cleare keyboard current states
+		break;
+	case WM_KEYDOWN: // This is applied only for no system key (like alt , f1 .. )
+	case WM_SYSKEYDOWN: // This is applied only for system key
+		if ((lParam & bit30) || keyboard.IsAutoRepeat())
 		{
-			SetWindowText(hHandle, L"Respect");
+			keyboard.OnKeyPressEvent(key); // handling Pressed key event
 		}
 		break;
 	case WM_KEYUP:
-		if (wParam == 'F')
-		{
-			SetWindowText(hHandle, L"Daaaangeeee");
-		}
+		keyboard.OnKeyReleaseEvent(key); // Handling Released key event
 		break;
 	case WM_CHAR: // handling text input
-
+		keyboard.OnCharEvent(key);
 		break;
 	case WM_LBUTTONDOWN:
 	{

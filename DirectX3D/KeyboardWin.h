@@ -5,7 +5,6 @@
 #include <bitset>
 
 using namespace std;
-
 /// <summary>
 /// Different states for Keys on keyboard
 /// </summary>
