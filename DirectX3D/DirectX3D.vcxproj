@@ -156,12 +156,14 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Exceptions.cpp" />
+    <ClCompile Include="KeyboardWin.cpp" />
     <ClCompile Include="MainWindowsEntry.cpp" />
     <ClCompile Include="WindowWrapper.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Exceptions.h" />
     <ClInclude Include="Includer.h" />
+    <ClInclude Include="KeyboardWin.h" />
     <ClInclude Include="WindowWrapper.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
