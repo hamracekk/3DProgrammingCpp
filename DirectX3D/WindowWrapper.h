@@ -5,6 +5,8 @@
 #include "KeyboardWin.h"
 #include "WinMouse.h"
 
+#include <optional>
+
 const constexpr int bit30 = 0x40000000; // 30th bit in lParam
 
 class Window
@@ -13,6 +15,7 @@ public:
 	Window(int width, int height, std::string&& name) noexcept;
 	~Window();
 	Window& operator=(const Window&) = delete;
+	static std::optional<int> ProcessMessageLoop();
 private:
 	/// <summary>
 	/// This Class will be singleton (private constructor)
