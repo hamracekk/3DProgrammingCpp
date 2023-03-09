@@ -1,4 +1,4 @@
-#include "WindowWrapper.h"
+#include "Application.h"
 
 /// <summary>
 /// Entry pointz of the program
@@ -12,35 +12,8 @@ int CALLBACK WinMain( HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR cmdLine, int c
 {
 	try
 	{
-		Window window(500, 500, "Some good stuff is here");
-
-		//Messages handling
-		MSG message;
-		BOOL result;
-		while (result = GetMessage( // Getting message from queue 
-			&message, // pointer to massge to be filled
-			NULL, //If NULL is specfidie we get all messages fro current thread
-			0, 0) /*both 0 means that we want all messages in queue*/ > 0)
-		{
-			TranslateMessage(&message); // Translation for WM_CHAR messages
-			DispatchMessage(&message); // This will send message to windowProcedure, which is handling messages
-			while (!window.mouse.BufferIsEmpty())
-			{
-				if (window.mouse.GetNextEvent().GetState() == MouseState::MOUSEMOVE)
-				{
-					std::ostringstream oss;
-					oss << "Position: (" << window.mouse.GetXPostion() << " , " << window.mouse.GetYPostion() << ")";
-					SetWindowTextA(window.handle_, oss.str().c_str());
-				}
-			}
-		}
-
-		if (result == -1)
-		{
-			return -1;
-		}
-
-		return message.wParam;
+		Application app {};
+		app.Run();
 	}
 	catch (WindowException& e)
 	{

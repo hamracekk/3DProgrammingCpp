@@ -56,6 +56,40 @@ Window::~Window()
 };
 
 /// <summary>
+/// Function responsible for message pump processing
+/// </summary>
+/// <returns>Optional return code</returns>
+std::optional<int> Window::ProcessMessageLoop()
+{
+	MSG message;
+	BOOL result; // if PeekMessage return true (there was a message in queue and we process the message
+	while (result = PeekMessageA( // Getting message from queue 
+		&message, // pointer to massge to be filled
+		NULL, //If NULL is specfidie we get all messages fro current thread
+		0, 0, //both 0 means that we want all messages in queue
+		PM_REMOVE) /*Remove message from queue */ > 0)
+	{
+		if (message.message == WM_QUIT)
+			return message.wParam; // wParam is passed to QuitMessage
+
+		TranslateMessage(&message); // Translation for WM_CHAR messages
+		DispatchMessage(&message); // This will send message to windowProcedure, which is handling messages
+		
+		/*while (!mouse.BufferIsEmpty())
+		{
+			if (window.mouse.GetNextEvent().GetState() == MouseState::MOUSEMOVE)
+			{
+				std::ostringstream oss;
+				oss << "Position: (" << window.mouse.GetXPostion() << " , " << window.mouse.GetYPostion() << ")";
+				SetWindowTextA(window.handle_, oss.str().c_str());
+			}
+		}*/
+	}
+
+	return optional<int>();
+};
+
+/// <summary>
 /// Static Set-Up window procedure function (which is passed to WINCLASSEX), which handles window messages
 /// </summary>
 /// <param name="hHandle"> is a handle to the window</param>
