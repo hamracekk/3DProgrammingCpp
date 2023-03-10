@@ -9,7 +9,7 @@
 
 using namespace std;
 
-enum class EXCEPTIONTYPE { WINDOWS };
+enum class EXCEPTIONTYPE { WINDOWS, GRAPHICS };
 
 /// <summary>
 /// definition of type for own enum translation to string
@@ -17,9 +17,8 @@ enum class EXCEPTIONTYPE { WINDOWS };
 typedef map<EXCEPTIONTYPE, string> ExceptionMap;
 
 /// <summary>
-/// Costom exception class
+/// Custom exception class
 /// </summary>
-/// 
 class BaseException : public exception
 {
 public:
@@ -34,6 +33,9 @@ protected:
 	string file_;
 };
 
+/// <summary>
+/// Exception class representing exceptions thrown by window class
+/// </summary>
 class WindowException : public BaseException
 {
 public:
@@ -43,6 +45,21 @@ public:
 private:
 	HRESULT hResult_;
 	string exBuffer;
+};
+
+/// <summary>
+/// Exception class representing exceptions thrown by graphics class
+/// </summary>
+class GraphicsException : public BaseException
+{
+public:
+	inline GraphicsException(size_t line, const char* file, HRESULT hRes) noexcept 
+		: BaseException(line, file), hResult_(hRes) {};
+	const char* what() const noexcept override;
+	inline EXCEPTIONTYPE getType() const noexcept override { return EXCEPTIONTYPE::GRAPHICS; };
+
+private:
+	HRESULT hResult_;
 };
 
 static string& translateException(EXCEPTIONTYPE exType);

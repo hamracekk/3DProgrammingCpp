@@ -4,7 +4,9 @@
 #include "Includer.h"
 #include "KeyboardWin.h"
 #include "WinMouse.h"
+#include "Graphics.h"
 
+#include <memory>
 #include <optional>
 
 const constexpr int bit30 = 0x40000000; // 30th bit in lParam
@@ -16,6 +18,7 @@ public:
 	~Window();
 	Window& operator=(const Window&) = delete;
 	static std::optional<int> ProcessMessageLoop();
+	inline Graphics& GetGraphics() { return *graphics; };
 private:
 	/// <summary>
 	/// This Class will be singleton (private constructor)
@@ -45,6 +48,7 @@ public:
 	const size_t window_height_;
 	const size_t leftCorner = 200;
 	const size_t topCorner = 200;
+	std::unique_ptr<Graphics> graphics; // Every window has its own unique graphics
 public:
 	WinKeyboard keyboard;
 	WinMouse mouse;

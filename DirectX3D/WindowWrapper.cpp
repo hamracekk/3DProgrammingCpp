@@ -45,6 +45,8 @@ Window::Window(int width, int height, std::string&& name) noexcept : window_widt
 
 	//Now we display the window
 	ShowWindow(handle_, SW_SHOW);
+
+	graphics = make_unique<Graphics>(handle_, width, height); // passing window handle to the graphics
 };
 
 /// <summary>
