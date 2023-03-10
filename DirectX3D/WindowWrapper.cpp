@@ -89,6 +89,17 @@ std::optional<int> Window::ProcessMessageLoop()
 	}
 
 	return optional<int>();
+}
+
+/// <summary>
+/// Getter for graphics
+/// </summary>
+/// <returns>Reference to graphics object</returns>
+Graphics& Window::GetGraphics()
+{
+	if (!graphics) // Exception is thrown when pointer is missing
+		throw NoGraphicsException(__LINE__,__FILE__);
+	return *graphics;
 };
 
 /// <summary>

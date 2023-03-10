@@ -59,10 +59,17 @@ bool Graphics::Initialize(HWND handle, int width, int height)
 	return true;
 }
 
+/// <summary>
+/// Present next frame 
+/// </summary>
 void Graphics::FlipFrame()
 {
-	pSwapChain->Present(1u, // setting 60Hz repetition rate
-		0u); // No flags
+	HRESULT res = pSwapChain->Present(1u, /* setting 60Hz repetition rate */ 0u /*No flags*/);
+
+	if (FAILED(res))
+	{
+		throw GraphicsException(__LINE__, __FILE__, res);
+	}
 };
 
 /// <summary>

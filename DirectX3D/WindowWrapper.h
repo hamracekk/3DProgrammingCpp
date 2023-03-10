@@ -11,6 +11,9 @@
 
 const constexpr int bit30 = 0x40000000; // 30th bit in lParam
 
+/// <summary>
+/// Class wraping window logic
+/// </summary>
 class Window
 {
 public:
@@ -18,7 +21,7 @@ public:
 	~Window();
 	Window& operator=(const Window&) = delete;
 	static std::optional<int> ProcessMessageLoop();
-	inline Graphics& GetGraphics() { return *graphics; };
+	Graphics& GetGraphics();
 private:
 	/// <summary>
 	/// This Class will be singleton (private constructor)
@@ -50,7 +53,7 @@ public:
 	const size_t topCorner = 200;
 	std::unique_ptr<Graphics> graphics; // Every window has its own unique graphics
 public:
-	WinKeyboard keyboard;
+	WinKeyboard keyboard; 
 	WinMouse mouse;
 };
 
