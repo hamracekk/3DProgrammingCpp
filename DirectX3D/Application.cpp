@@ -2,7 +2,7 @@
 #include <iomanip>
 
 /// <summary>
-/// Wrpas the message processing and whole aplication loop
+/// Wrapas the message processing and whole aplication loop
 /// </summary>
 /// <returns>exit code</returns>
 int Application::Run()
@@ -22,10 +22,9 @@ int Application::Run()
 /// </summary>
 void Application::ProcessFrame()
 {
-	float frame_duration = GetTimeFromLastWithoutUpdate();
-	std::ostringstream oss;
-	oss << "Time elapsed: " << std::setprecision(1) << std::fixed << frame_duration << " !";
-	SetWindowTextA(window.handle_, oss.str().c_str());
+	const float colors = sin(GetTimeFromLastWithoutUpdate()) / 2.0f + 0.5f;
+	window.GetGraphics().ColorBuffer(colors, colors, 1.0f);
+	window.GetGraphics().FlipFrame(); // change frames
 }
 
 /// <summary>
