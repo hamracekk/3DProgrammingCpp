@@ -24,6 +24,7 @@ void Application::ProcessFrame()
 {
 	const float colors = sin(GetTimeFromLastWithoutUpdate()) / 2.0f + 0.5f;
 	window.GetGraphics().ColorBuffer(colors, colors, 1.0f);
+	window.GetGraphics().DrawTriangle();
 	window.GetGraphics().FlipFrame(); // change frames
 }
 

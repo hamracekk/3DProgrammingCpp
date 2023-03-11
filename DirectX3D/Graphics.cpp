@@ -42,16 +42,15 @@ bool Graphics::Initialize(HWND handle, int width, int height)
 		throw GraphicsException(__LINE__, __FILE__, res);
 	};
 
-	ID3D11Resource* pBackBuffer = NULL; // resource for texture in swapchain
+	ComPtr<ID3D11Resource> pBackBuffer; // resource for texture in swapchain
 	pSwapChain->GetBuffer(0, //index of buffer (zero is backbuffer
 		__uuidof(ID3D11Resource), // COM -> we are querying interface
-		reinterpret_cast<void**>(&pBackBuffer)); // Object to be filled with interface handle
+		&pBackBuffer); // Object to be filled with interface handle
 
-	res = pDevice->CreateRenderTargetView(pBackBuffer, // Rendering given view
-									NULL,
-									&pRenderTargetView); // View to be filled
+	res = pDevice->CreateRenderTargetView(pBackBuffer.Get(), // Rendering given view
+										  NULL,
+									      &pRenderTargetView); // View to be filled
 
-	pBackBuffer->Release(); // Served only for creating view
 	if (FAILED(res)) { // kontrola
 		throw GraphicsException(__LINE__, __FILE__, res);
 	};
@@ -80,18 +79,7 @@ void Graphics::FlipFrame()
 /// <param name="blue"></param>
 void Graphics::ColorBuffer(float red, float green, float blue)
 {
-	const float colors[] = {red, green, blue, 1.0f};
-	pDevContext->ClearRenderTargetView(pRenderTargetView, colors);
+	const float colors[] = { red, green, blue, 1.0f };
+	pDevContext->ClearRenderTargetView(pRenderTargetView.Get(), colors);
 };
 
-Graphics::~Graphics()
-{
-	if (pDevice != nullptr)
-		pDevice->Release();
-	if (pSwapChain != nullptr)
-		pSwapChain->Release();
-	if (pDevContext != nullptr)
-		pDevContext->Release();
-	if (pRenderTargetView != nullptr)
-		pRenderTargetView->Release();
-}

@@ -34,7 +34,7 @@ Window::WindowCore::~WindowCore()
 Window::Window(int width, int height, std::string&& name) noexcept : window_width_(width), window_height_(height)
 {
 	handle_ = CreateWindowA(WindowCore::GetName(), // Name of the class
-		name.c_str(), // Name of the window
+		WindowCore::GetName(), // Name of the window
 		WS_CAPTION | WS_MINIMIZEBOX | WS_BORDER | WS_SYSMENU, // style of the Window
 		topCorner, leftCorner, //Where to spwan the left top corner of the window
 		width, height, //Width x Height
@@ -76,16 +76,6 @@ std::optional<int> Window::ProcessMessageLoop()
 
 		TranslateMessage(&message); // Translation for WM_CHAR messages
 		DispatchMessage(&message); // This will send message to windowProcedure, which is handling messages
-		
-		/*while (!mouse.BufferIsEmpty())
-		{
-			if (window.mouse.GetNextEvent().GetState() == MouseState::MOUSEMOVE)
-			{
-				std::ostringstream oss;
-				oss << "Position: (" << window.mouse.GetXPostion() << " , " << window.mouse.GetYPostion() << ")";
-				SetWindowTextA(window.handle_, oss.str().c_str());
-			}
-		}*/
 	}
 
 	return optional<int>();
