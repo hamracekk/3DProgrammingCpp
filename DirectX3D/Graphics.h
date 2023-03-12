@@ -8,8 +8,10 @@
 #include <wrl.h> // We will use ComPtr -> release object automaticly (e.g. in case of exception)
 #include <d3d11.h>
 #include <d3dcompiler.h> // used for reading byte files from hlsl tranformation
+#include <DirectXMath.h>
 
 using namespace Microsoft::WRL;
+using namespace DirectX;
 
 class Graphics
 {
@@ -18,17 +20,22 @@ public:
 	Graphics(const Graphics&) = delete; 
 	Graphics& operator = (const Graphics&) = delete;
 	~Graphics() = default; // releasing is handled by ComPtr
+	void InitPrimitiveTopologyAndViewport(int width, int height);
+	bool InitInputLayout(HRESULT& result, ComPtr<ID3D10Blob>& pBlob);
+	bool InitVertexShader(HRESULT& result, ComPtr<ID3D10Blob>& pBlob);
+	bool InitPixelShader(HRESULT& result, ComPtr<ID3D10Blob>& pBlob);
 	bool Initialize(HWND hwnd, int width, int height);
 	void FlipFrame();
 	void ColorBuffer(float red, float green, float blue);
 
-	void DrawTriangle()
+	void DrawTriangle(float angle, float x, float y)
 	{
 		// creating vertex buffer
 		struct Vertex 
 		{
 			float x;
 			float y;
+			float z;
 			unsigned char red;
 			unsigned char green;
 			unsigned char blue;
@@ -37,21 +44,25 @@ public:
 
 		const Vertex vertices[] =
 		{
-			{ 0.0f, 0.5f, 255, 0, 0, 0 },
-			{ 0.5f, -0.5f, 0, 255, 0, 0},
-			{ -0.5f, -0.5f, 0, 0, 255, 0},
-			{ -0.3f, 0.3f, 255, 0, 0, 0 },
-			{ 0.3f, 0.3f, 0, 255, 0, 0},
-			{ 0.0f, -0.8f, 0, 0, 255, 0},
+			{ -1.0f,-1.0f,-1.0f, 255, 0, 0, 0 },
+			{ 1.0f,-1.0f,-1.0f, 255, 0, 0, 0 },
+			{ -1.0f,1.0f,-1.0f, 0, 255, 0, 0},
+			{ 1.0f,1.0f,-1.0f, 0, 0, 255, 0},
+			{ -1.0f,-1.0f,1.0f, 255, 0, 0, 0 },
+			{ 1.0f,-1.0f,1.0f, 0, 255, 0, 0},
+			{ -1.0f,1.0f,1.0f, 0, 0, 255, 0},
+			{ 1.0f,1.0f,1.0f, 0, 0, 255, 0},
 		};
 
 		//indeces for vertexes
 		const unsigned short indices[] =
 		{
-			0,1,2,
-			0,2,3,
-			0,4,1,
-			2,1,5,
+			0,2,1, 2,3,1,
+			1,3,5, 3,7,5,
+			2,6,3, 3,6,7,
+			4,5,7, 4,7,6,
+			0,4,2, 2,4,6,
+			0,1,4, 1,5,4 
 		};
 
 		// creating index buffer for vertexes
@@ -67,6 +78,42 @@ public:
 		dataInd.pSysMem = indices;
 		pDevice->CreateBuffer(&descriptorInd, &dataInd, &pIndexBuffer);
 		pDevContext->IASetIndexBuffer(pIndexBuffer.Get(), DXGI_FORMAT_R16_UINT, 0u); // setting index buffer
+
+
+		ComPtr<ID3D11Buffer> pConstBuffer;
+		// Define the constant data used to communicate with shaders.
+		struct ConstBuffer
+		{
+			XMMATRIX transformMatrix; //SIMD operations
+		};
+
+		const ConstBuffer constBuffer =
+		{
+			XMMatrixTranspose(XMMatrixRotationZ(angle) * XMMatrixRotationX(angle) * XMMatrixTranslation(x , y, 4.0f)
+			* XMMatrixPerspectiveLH( 1.0f, 1.0f, 0.5f, 10.0f ))
+		};
+
+		// Fill in a buffer description.
+		D3D11_BUFFER_DESC cbDesc;
+		cbDesc.ByteWidth = sizeof(constBuffer);
+		cbDesc.Usage = D3D11_USAGE_DYNAMIC;
+		cbDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+		cbDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+		cbDesc.MiscFlags = 0;
+		cbDesc.StructureByteStride = 0;
+		// Fill in the subresource data.
+		D3D11_SUBRESOURCE_DATA InitData;
+		InitData.pSysMem = &constBuffer;
+		InitData.SysMemPitch = 0;
+		InitData.SysMemSlicePitch = 0;
+		// Create the buffer.
+		HRESULT hr = pDevice->CreateBuffer(&cbDesc, &InitData,
+			&pConstBuffer);
+		if (FAILED(hr))
+			throw GraphicsException(__LINE__, __FILE__, hr);
+		//binding of constant buffer
+		pDevContext->VSSetConstantBuffers(0u, 1u, pConstBuffer.GetAddressOf());
+
 
 		ComPtr<ID3D11Buffer> pVertexBuffer;
 		D3D11_BUFFER_DESC descriptor = {}; // descriptor for buffer
@@ -96,72 +143,25 @@ public:
 			&stride, // adrss of stride size
 			&offest); // pointer to array offset
 
-		//binding pixel shader
-		ComPtr<ID3D11PixelShader> pPixelShader;
 		ComPtr<ID3DBlob> pBlob;
-		hres = D3DReadFileToBlob(L"PixelShader.cso", &pBlob);
-		pDevice->CreatePixelShader(pBlob->GetBufferPointer(), // pointer to buffer
-			pBlob->GetBufferSize(), // buffer size
-			NULL,
-			&pPixelShader); // pointer to be filled
-		pDevContext->PSSetShader(pPixelShader.Get(), NULL, 0); // setting pixel shader
+		//binding pixel shader
+		if(!InitPixelShader(hres,pBlob))
+			throw GraphicsException(__LINE__, __FILE__, hres);
 
 		//binding vertex shader
-		ComPtr<ID3D11VertexShader> pVertexShader;
-		hres = D3DReadFileToBlob(L"VertexShader.cso", &pBlob);
-		pDevice->CreateVertexShader(pBlob->GetBufferPointer(), // pointer to buffer
-									pBlob->GetBufferSize(), // buffer size
-									NULL,
-									&pVertexShader); // pointer to be filled
-		if (FAILED(hres))
+		if (!InitVertexShader(hres, pBlob))
+			throw GraphicsException(__LINE__, __FILE__, hres);	
+
+		//binding/creating/initializing input layout
+		if(!InitInputLayout(hres, pBlob))
 			throw GraphicsException(__LINE__, __FILE__, hres);
-		pDevContext->VSSetShader(pVertexShader.Get(), NULL, 0);
-
-		// How should be Vertex struct represented ? -> mapping of it secured by InputLayout
-		ComPtr<ID3D11InputLayout> pInputLayout;
-
-		const D3D11_INPUT_ELEMENT_DESC arrayOfDescriptors[] =
-		{
-			{"SV_POSITION", // semantic name (in hlsl file)
-			0, // index of semantic (not using)
-			DXGI_FORMAT_R32G32_FLOAT, // format of the data -> float2 Vertex(x,y)
-			0, // binding to slot 0 
-			0, // offset
-			D3D11_INPUT_PER_VERTEX_DATA, // default
-			0 },
-
-			{"COLOR",0,DXGI_FORMAT_R8G8B8A8_UNORM,0, 8u, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-
-		};
-		//Creating input layout (COM approach)
-		hres = pDevice->CreateInputLayout(arrayOfDescriptors, // pointer to descriptor
-			(UINT)std::size(arrayOfDescriptors), // number of elements
-			pBlob->GetBufferPointer(), //
-			pBlob->GetBufferSize(),
-			&pInputLayout);
-		if (FAILED(hres))
-			throw GraphicsException(__LINE__, __FILE__, hres);
-		pDevContext->IASetInputLayout(pInputLayout.Get());
-
 
 		//binding of render target 
 		pDevContext->OMSetRenderTargets(1u, // we rae binding 1 view
 			pRenderTargetView.GetAddressOf(), // without releasing buffer 
 			nullptr);
 
-		// Setting primitive topology (how are pointes interpreted ?) - Input assembler
-		pDevContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY::D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-
-		//viewport mapping
-		D3D11_VIEWPORT viewport;
-		viewport.Width = 500;
-		viewport.Height = 500;
-		viewport.MinDepth = 0; // Depth of the view
-		viewport.MaxDepth = 1;
-		viewport.TopLeftX = 0; // Coordinate of viewport in render target
-		viewport.TopLeftY = 0;
-		pDevContext->RSSetViewports(1u, //number of viewports
-									&viewport);
+		InitPrimitiveTopologyAndViewport(500, 500);
 
 		pDevContext->DrawIndexed((UINT)std::size(indices),0u, 0u);
 	}
@@ -171,6 +171,9 @@ private:
 	ComPtr<IDXGISwapChain> pSwapChain; // Pointer na Swap chain
 	ComPtr<ID3D11DeviceContext> pDevContext; // Pointer to device context
 	ComPtr<ID3D11RenderTargetView> pRenderTargetView; // Pointer to render of view
+	ComPtr<ID3D11VertexShader> pVertexShader; // Pointer to our vertex shader
+	ComPtr<ID3D11PixelShader> pPixelShader; // Pointer to out pixel shader
+	ComPtr<ID3D11InputLayout> pInputLayout; // How should be Vertex struct represented ? -> mapping of it secured by InputLayout
 };
 
 #endif //!GRAPHICS_H_

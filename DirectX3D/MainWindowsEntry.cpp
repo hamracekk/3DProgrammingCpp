@@ -19,6 +19,10 @@ int CALLBACK WinMain( HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR cmdLine, int c
 	{
 		MessageBoxA(NULL, e.what(), "WinExcpetion", MB_OK);
 	}
+	catch (GraphicsException& e)
+	{
+		MessageBoxA(NULL, e.what(), "Graphics exception", MB_OK);
+	}
 	catch (const exception& e)
 	{
 		MessageBoxA(NULL, e.what(), "Standard library exception", MB_OK);

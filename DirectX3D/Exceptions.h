@@ -6,6 +6,8 @@
 #include <string>
 #include <map>
 #include <sstream>
+#include <comdef.h>
+#include <optional>
 
 using namespace std;
 
@@ -29,6 +31,7 @@ public:
 	virtual EXCEPTIONTYPE getType() const noexcept = 0;
 	inline const string& getFile() const noexcept { return file_; }
 	inline size_t getLine() const noexcept { return line_; }
+	virtual optional<HRESULT> getHResult() const noexcept = 0;
 protected:
 	size_t line_;
 	string file_;
@@ -44,7 +47,7 @@ public:
 	inline WindowException(size_t line, const char* file, HRESULT hRes) noexcept 
 		: BaseException(line, file), hResult_(hRes) {};
 	inline EXCEPTIONTYPE getType() const noexcept override { return EXCEPTIONTYPE::WINDOWS; };
-	inline HRESULT getHResult() const noexcept { return hResult_; };
+	inline optional<HRESULT> getHResult() const noexcept override { return hResult_; };
 private:
 	HRESULT hResult_;
 };
@@ -58,7 +61,7 @@ public:
 	inline GraphicsException(size_t line, const char* file, HRESULT hRes) noexcept 
 		: BaseException(line, file), hResult_(hRes) {};
 	inline EXCEPTIONTYPE getType() const noexcept override { return EXCEPTIONTYPE::GRAPHICS; };
-	inline HRESULT getHResult() const noexcept { return hResult_; };
+	inline optional<HRESULT> getHResult() const noexcept override { return hResult_; };
 private:
 	HRESULT hResult_;
 };
@@ -72,6 +75,7 @@ public:
 	inline NoGraphicsException(size_t line, const char* file) noexcept
 		: BaseException(line, file) {};
 	inline EXCEPTIONTYPE getType() const noexcept override { return EXCEPTIONTYPE::NOGRAPHICS; };
+	inline optional<HRESULT> getHResult() const noexcept override { return optional<HRESULT>(); };
 };
 
 static string& translateException(EXCEPTIONTYPE exType);

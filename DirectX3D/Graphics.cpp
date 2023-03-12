@@ -1,5 +1,107 @@
 ﻿#include "Graphics.h"
 
+#define RETURN_FALSE_IF_FAILED(result) if(FAILED(result)) return false
+
+/// <summary>
+/// This function initialize PrimitiveTopology (How should be points in Vertex buffer respresented).
+/// This function also initialize viewport (How should be view mapped to window screen)
+/// </summary>
+/// <param name="width">width of viewport</param>
+/// <param name="height">height of viewport</param>
+void Graphics::InitPrimitiveTopologyAndViewport(int width, int height)
+{
+	// Setting primitive topology (how are pointes interpreted ?) - Input assembler
+	pDevContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY::D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+	//viewport mapping
+	D3D11_VIEWPORT viewport;
+	viewport.Width = width;
+	viewport.Height = height;
+	viewport.MinDepth = 0; // Depth of the view
+	viewport.MaxDepth = 1;
+	viewport.TopLeftX = 0; // Coordinate of viewport in render target
+	viewport.TopLeftY = 0;
+	pDevContext->RSSetViewports(1u, /*number of viewports */&viewport);
+};
+
+/// <summary>
+/// This method is responsible for Creating/Setting vertex shader
+/// </summary>
+/// <param name="result">HRESULT of whole method</param>
+/// <param name="pBlob">Pointer to buffer for binary input</param>
+/// <returns>True if method succeeded</returns>
+bool Graphics::InitVertexShader(HRESULT& result, ComPtr<ID3D10Blob>& pBlob)
+{
+	result = D3DReadFileToBlob(L"VertexShader.cso", &pBlob); //reading runtime created binary file from hlsl transformation
+	RETURN_FALSE_IF_FAILED(result);
+	
+	//Creating vertex shder (COM approach)
+	pDevice->CreateVertexShader(pBlob->GetBufferPointer(), // pointer to buffer
+		pBlob->GetBufferSize(), // buffer size
+		NULL,
+		&pVertexShader); // pointer to be filled
+	RETURN_FALSE_IF_FAILED(result);
+
+	pDevContext->VSSetShader(pVertexShader.Get(), NULL, 0); // Setting vertex shader
+
+	return true;
+};
+
+/// <summary>
+/// Method responsible for Creating/ Setting pixel shader
+/// </summary>
+/// <param name="result">HRESULT of whole method</param>
+/// <param name="pBlob">Pointer to buffer for binary input</param>
+/// <returns>True if method succeeded</returns>
+bool Graphics::InitPixelShader(HRESULT& result, ComPtr<ID3D10Blob>& pBlob)
+{
+
+	result = D3DReadFileToBlob(L"PixelShader.cso", &pBlob); // reading dynamicly created binary file to blob
+	RETURN_FALSE_IF_FAILED(result);
+
+	pDevice->CreatePixelShader(pBlob->GetBufferPointer(), // pointer to buffer
+		pBlob->GetBufferSize(), // buffer size
+		NULL,
+		&pPixelShader); // pointer to be filled
+	RETURN_FALSE_IF_FAILED(result);
+
+	pDevContext->PSSetShader(pPixelShader.Get(), NULL, 0); // setting pixel shader
+
+	return true;
+};
+
+/// <summary>
+/// This method is responsible for initializing/creating/setting Input Layout
+/// </summary>
+/// <returns>True if initialization succeed</returns>
+bool Graphics::InitInputLayout(HRESULT& result, ComPtr<ID3D10Blob>& pBlob)
+{
+	// descriptor for inpiut layout
+	const D3D11_INPUT_ELEMENT_DESC arrayOfDescriptors[] =
+	{
+		{"POSITION", // semantic name (in hlsl file)
+		0, // index of semantic (not using)
+		DXGI_FORMAT_R32G32B32_FLOAT, // format of the data -> float2 Vertex(x,y)
+		0, // binding to slot 0 
+		0, // offset
+		D3D11_INPUT_PER_VERTEX_DATA, // default
+		0 },
+
+		{"COLOR",0,DXGI_FORMAT_R8G8B8A8_UNORM,0, 12u, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+	};
+
+	//Creating input layout (COM approach) using device
+	result = pDevice->CreateInputLayout(arrayOfDescriptors, // pointer to descriptor
+		(UINT)std::size(arrayOfDescriptors), // number of elements
+		pBlob->GetBufferPointer(), // Getting content of pBlol (binary)
+		pBlob->GetBufferSize(),
+		&pInputLayout);
+	RETURN_FALSE_IF_FAILED(result);
+
+	pDevContext->IASetInputLayout(pInputLayout.Get()); // Setting created input layout
+	return true;
+};
+
 bool Graphics::Initialize(HWND handle, int width, int height)
 {
 	DXGI_SWAP_CHAIN_DESC SwapDesc{}; // Descriptor structure which provides information how to construct swapChain and device

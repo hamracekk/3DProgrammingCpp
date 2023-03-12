@@ -15,6 +15,12 @@ static string& translateException(EXCEPTIONTYPE exType)
 	return exceptionTranslation[exType];
 }
 
+static void convertLPCWSTRToString(string& out, LPCWSTR input)
+{
+	wstring wstring(input);
+	out = string(wstring.begin(), wstring.end());
+}
+
 /// <summary>
 /// Returns brief information about exception
 /// </summary>
@@ -25,6 +31,15 @@ char const* BaseException::what()
 	ostream << "Exception type: " << translateException(getType()) << "!" << endl;
 	ostream << "Line: " << getLine() << endl;
 	ostream << "File" << getFile() << endl;
+
+	optional<HRESULT> res = getHResult();
+	if (res.has_value())
+	{
+		_com_error err(res.value());
+		string errorString = "";
+		convertLPCWSTRToString(errorString, err.ErrorMessage());
+		ostream << "Message: " << errorString << endl;
+	}
 	exBuffer = ostream.str(); // we have to save it to buffer beacuse pointer cease to exist after function call
 	return exBuffer.c_str();
 };

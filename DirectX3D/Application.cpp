@@ -24,7 +24,12 @@ void Application::ProcessFrame()
 {
 	const float colors = sin(GetTimeFromLastWithoutUpdate()) / 2.0f + 0.5f;
 	window.GetGraphics().ColorBuffer(colors, colors, 1.0f);
-	window.GetGraphics().DrawTriangle();
+	float x = (window.mouse.GetXPostion() / 250.0f) - 1.0f;
+	float y = - (window.mouse.GetYPostion() / 250.0f) + 1.0f;
+	ostringstream oss;
+	oss << "Postiion: ( " << x << "," << y << " )!";
+	SetWindowTextA(window.handle_, oss.str().c_str());
+	window.GetGraphics().DrawTriangle(GetTimeFromLastWithoutUpdate(), x, y);
 	window.GetGraphics().FlipFrame(); // change frames
 }
 
