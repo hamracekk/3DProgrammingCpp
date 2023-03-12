@@ -3,6 +3,10 @@
 
 #include "Graphics.h"
 
+#include <vector>
+
+using namespace std;
+
 /// <summary>
 /// Abstraction class for every resource that can be bound to Graphics pipeline
 /// </summary>

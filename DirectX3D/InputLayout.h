@@ -3,10 +3,6 @@
 
 #include "GraphicsAbstraction.h"
 
-#include <vector>
-
-using namespace std;
-
 /// <summary>
 /// Class representing construction/creation of input layout stage
 /// </summary>

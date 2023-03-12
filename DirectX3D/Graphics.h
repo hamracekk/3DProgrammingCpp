@@ -113,7 +113,6 @@ public:
 			&pConstBuffer);
 		if (FAILED(hres))
 			throw GraphicsException(__LINE__, __FILE__, hres);
-		//binding of constant buffer
 		pDevContext->VSSetConstantBuffers(0u, 1u, pConstBuffer.GetAddressOf());
 
 

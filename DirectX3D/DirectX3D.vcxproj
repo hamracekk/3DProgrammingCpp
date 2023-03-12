@@ -171,11 +171,14 @@
     <ClCompile Include="InputLayout.cpp" />
     <ClCompile Include="KeyboardWin.cpp" />
     <ClCompile Include="MainWindowsEntry.cpp" />
+    <ClCompile Include="PrimitiveTopology.cpp" />
+    <ClCompile Include="VertexBuffer.cpp" />
     <ClCompile Include="WindowWrapper.cpp" />
     <ClCompile Include="WinMouse.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application.h" />
+    <ClInclude Include="ConstantBuffer.h" />
     <ClInclude Include="Exceptions.h" />
     <ClInclude Include="Graphics.h" />
     <ClInclude Include="GraphicsAbstraction.h" />
@@ -183,6 +186,8 @@
     <ClInclude Include="IndexBuffer.h" />
     <ClInclude Include="InputLayout.h" />
     <ClInclude Include="KeyboardWin.h" />
+    <ClInclude Include="PrimitiveTopology.h" />
+    <ClInclude Include="VertexBuffer.h" />
     <ClInclude Include="WindowWrapper.h" />
     <ClInclude Include="WinMouse.h" />
   </ItemGroup>
