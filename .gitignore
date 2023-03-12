@@ -33,3 +33,4 @@ obj/
 *.opendb
 *.recipe
 *.idb
+*.cso
