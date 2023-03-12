@@ -20,6 +20,10 @@ public:
 	Graphics(const Graphics&) = delete; 
 	Graphics& operator = (const Graphics&) = delete;
 	~Graphics() = default; // releasing is handled by ComPtr
+	bool InitDepthBuffer(HRESULT& result);
+	bool InitSwapChainAndDevice(HRESULT& result, UINT width, UINT height, HWND handle);
+	bool InitRenderTargetView(HRESULT& result);
+	bool InitDepthStencilTexture(HRESULT& result, int width, int height);
 	void InitPrimitiveTopologyAndViewport(int width, int height);
 	bool InitInputLayout(HRESULT& result, ComPtr<ID3D10Blob>& pBlob);
 	bool InitVertexShader(HRESULT& result, ComPtr<ID3D10Blob>& pBlob);
@@ -28,30 +32,27 @@ public:
 	void FlipFrame();
 	void ColorBuffer(float red, float green, float blue);
 
-	void DrawTriangle(float angle, float x, float y)
+	void DrawTriangle(float angle, float x, float z)
 	{
+		HRESULT hres;
 		// creating vertex buffer
 		struct Vertex 
 		{
 			float x;
 			float y;
 			float z;
-			unsigned char red;
-			unsigned char green;
-			unsigned char blue;
-			unsigned char alpha;
 		};
 
 		const Vertex vertices[] =
 		{
-			{ -1.0f,-1.0f,-1.0f, 255, 0, 0, 0 },
-			{ 1.0f,-1.0f,-1.0f, 255, 0, 0, 0 },
-			{ -1.0f,1.0f,-1.0f, 0, 255, 0, 0},
-			{ 1.0f,1.0f,-1.0f, 0, 0, 255, 0},
-			{ -1.0f,-1.0f,1.0f, 255, 0, 0, 0 },
-			{ 1.0f,-1.0f,1.0f, 0, 255, 0, 0},
-			{ -1.0f,1.0f,1.0f, 0, 0, 255, 0},
-			{ 1.0f,1.0f,1.0f, 0, 0, 255, 0},
+			{ -1.0f,-1.0f,-1.0f},
+			{ 1.0f,-1.0f,-1.0f},
+			{ -1.0f,1.0f,-1.0f},
+			{ 1.0f,1.0f,-1.0f},
+			{ -1.0f,-1.0f,1.0f},
+			{ 1.0f,-1.0f,1.0f},
+			{ -1.0f,1.0f,1.0f},
+			{ 1.0f,1.0f,1.0f},
 		};
 
 		//indeces for vertexes
@@ -76,7 +77,7 @@ public:
 		descriptorInd.StructureByteStride = sizeof(unsigned short); // size of one vertices eleemnt
 		D3D11_SUBRESOURCE_DATA dataInd;
 		dataInd.pSysMem = indices;
-		pDevice->CreateBuffer(&descriptorInd, &dataInd, &pIndexBuffer);
+		hres = pDevice->CreateBuffer(&descriptorInd, &dataInd, &pIndexBuffer);
 		pDevContext->IASetIndexBuffer(pIndexBuffer.Get(), DXGI_FORMAT_R16_UINT, 0u); // setting index buffer
 
 
@@ -89,7 +90,7 @@ public:
 
 		const ConstBuffer constBuffer =
 		{
-			XMMatrixTranspose(XMMatrixRotationZ(angle) * XMMatrixRotationX(angle) * XMMatrixTranslation(x , y, 4.0f)
+			XMMatrixTranspose(XMMatrixRotationZ(angle) * XMMatrixRotationX(angle) * XMMatrixTranslation(x ,0.0f, z + 4.0f)
 			* XMMatrixPerspectiveLH( 1.0f, 1.0f, 0.5f, 10.0f ))
 		};
 
@@ -107,10 +108,10 @@ public:
 		InitData.SysMemPitch = 0;
 		InitData.SysMemSlicePitch = 0;
 		// Create the buffer.
-		HRESULT hr = pDevice->CreateBuffer(&cbDesc, &InitData,
+		hres = pDevice->CreateBuffer(&cbDesc, &InitData,
 			&pConstBuffer);
-		if (FAILED(hr))
-			throw GraphicsException(__LINE__, __FILE__, hr);
+		if (FAILED(hres))
+			throw GraphicsException(__LINE__, __FILE__, hres);
 		//binding of constant buffer
 		pDevContext->VSSetConstantBuffers(0u, 1u, pConstBuffer.GetAddressOf());
 
@@ -129,7 +130,7 @@ public:
 		data.pSysMem = vertices; // setting pointer to our data
 
 		//filling vertex buffer (COM approach)
-		HRESULT hres = pDevice->CreateBuffer(&descriptor, &data, &pVertexBuffer);
+		hres = pDevice->CreateBuffer(&descriptor, &data, &pVertexBuffer);
 		if (FAILED(hres))
 			throw GraphicsException(__LINE__, __FILE__, hres);
 
@@ -142,6 +143,49 @@ public:
 			pVertexBuffer.GetAddressOf(), // pointer to our vertex buffer
 			&stride, // adrss of stride size
 			&offest); // pointer to array offset
+
+		struct RGBAColorStruc
+		{
+			float red;
+			float green;
+			float blue;
+			float alpha;
+		};
+
+		struct CubeFaceCollors
+		{
+			RGBAColorStruc cube_faces[6];
+		};
+
+		const CubeFaceCollors constBufferCube
+		{
+			{
+			    { 1.0f, 0.0f, 0.0f},
+				{ 0.0f, 1.0f, 0.0f},
+				{ 0.0f, 0.0f, 1.0f},
+				{ 1.0f, 1.0f, 0.0f},
+				{ 0.0f, 1.0f, 1.0f},
+				{ 1.0f, 0.0f, 1.0f},
+			}
+		};
+		
+		ComPtr<ID3D11Buffer> pConstBuffer2;
+		D3D11_BUFFER_DESC descriptorConst2 = {}; // descriptor for buffer
+		descriptorConst2.BindFlags = D3D11_BIND_CONSTANT_BUFFER; // type of the buffer 
+		descriptorConst2.Usage = D3D11_USAGE_DEFAULT; // buffer used by GPU only
+		descriptorConst2.CPUAccessFlags = 0u;
+		descriptorConst2.MiscFlags = 0u;
+		descriptorConst2.ByteWidth = sizeof(constBufferCube); // allocating right amount of space for buffer
+		descriptorConst2.StructureByteStride = 0u; // size of one vertices eleemnt
+		D3D11_SUBRESOURCE_DATA data2 = {};
+		data2.pSysMem = &constBufferCube; // setting pointer to our data
+		data2.SysMemPitch = 0;
+		data2.SysMemSlicePitch = 0;
+		//filling vertex buffer (COM approach)
+		hres = pDevice->CreateBuffer(&descriptorConst2, &data2, &pConstBuffer2);
+		if (FAILED(hres))
+			throw GraphicsException(__LINE__, __FILE__, hres);
+		pDevContext->PSSetConstantBuffers(0u, 1u, pConstBuffer2.GetAddressOf());
 
 		ComPtr<ID3DBlob> pBlob;
 		//binding pixel shader
@@ -156,11 +200,6 @@ public:
 		if(!InitInputLayout(hres, pBlob))
 			throw GraphicsException(__LINE__, __FILE__, hres);
 
-		//binding of render target 
-		pDevContext->OMSetRenderTargets(1u, // we rae binding 1 view
-			pRenderTargetView.GetAddressOf(), // without releasing buffer 
-			nullptr);
-
 		InitPrimitiveTopologyAndViewport(500, 500);
 
 		pDevContext->DrawIndexed((UINT)std::size(indices),0u, 0u);
@@ -174,6 +213,7 @@ private:
 	ComPtr<ID3D11VertexShader> pVertexShader; // Pointer to our vertex shader
 	ComPtr<ID3D11PixelShader> pPixelShader; // Pointer to out pixel shader
 	ComPtr<ID3D11InputLayout> pInputLayout; // How should be Vertex struct represented ? -> mapping of it secured by InputLayout
+	ComPtr<ID3D11DepthStencilView> pDepthStencilView; // pointer to depth view
 };
 
 #endif //!GRAPHICS_H_

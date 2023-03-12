@@ -1,10 +1,3 @@
-///Output struct for vertex
-struct VertexOut
-{
-    float3 color : COLOR;
-    float4 position : SV_POSITION;
-};
-
 // constant buffer
 cbuffer ConstBuffer
 {
@@ -16,10 +9,7 @@ cbuffer ConstBuffer
 ///Semantic names are used for position
 ///Outpu after build is .cso file (bytcode) and that file is runtime loaded to vertex shader
 
-VertexOut main(float3 pos : POSITION, float3 col : COLOR)
+float4 main(float3 pos : POSITION) : SV_POSITION
 {
-    VertexOut outStruct;
-    outStruct.color = col;
-    outStruct.position = mul(float4(pos, 1.0f), transform);
-    return outStruct;
+    return mul(float4(pos, 1.0f), transform);
 }

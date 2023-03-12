@@ -29,6 +29,7 @@ void Application::ProcessFrame()
 	ostringstream oss;
 	oss << "Postiion: ( " << x << "," << y << " )!";
 	SetWindowTextA(window.handle_, oss.str().c_str());
+	window.GetGraphics().DrawTriangle(-GetTimeFromLastWithoutUpdate(), 1.0f, 1.0f);
 	window.GetGraphics().DrawTriangle(GetTimeFromLastWithoutUpdate(), x, y);
 	window.GetGraphics().FlipFrame(); // change frames
 }
