@@ -15,6 +15,7 @@ using namespace DirectX;
 
 class Graphics
 {
+	friend class GraphicStageAbstraction;
 public:
 	inline Graphics(HWND hwnd, int width, int height) { Initialize(hwnd, width, height); };
 	Graphics(const Graphics&) = delete; 
