@@ -6,11 +6,11 @@
 /// <param name="graphics">Graphics for index buffer</param>
 /// <param name="indices">vector of indices</param>
 IndexBuffer::IndexBuffer(Graphics& graphics, vector<unsigned short>& indices) 
-	: indeces_count_(indices.size())
+	: indices_count_(indices.size())
 {
 	// creating index buffer for vertexes
 	UINT byteStride = sizeof(unsigned short);
-	UINT byteWidth = indeces_count_ * byteStride;
+	UINT byteWidth = indices_count_ * byteStride;
 
 	D3D11_BUFFER_DESC descriptorInd = {}; // descriptor for buffer
 	descriptorInd.BindFlags = D3D11_BIND_INDEX_BUFFER; // type of the buffer 

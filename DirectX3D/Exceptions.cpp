@@ -10,7 +10,8 @@ static string& translateException(EXCEPTIONTYPE exType)
 	static ExceptionMap exceptionTranslation = { 
 		{ EXCEPTIONTYPE::WINDOWS, "WINDOW EXCEPTION" },
 		{ EXCEPTIONTYPE::GRAPHICS, "GRAPHICS EXCEPTION" },
-		{ EXCEPTIONTYPE::NOGRAPHICS, "NO GRAPHICS EXCEPTION" }
+		{ EXCEPTIONTYPE::NOGRAPHICS, "NO GRAPHICS EXCEPTION" },
+		{ EXCEPTIONTYPE::DISPLAY, "DISPLAY EXCEPTION" },
 	};
 	return exceptionTranslation[exType];
 }

@@ -11,8 +11,9 @@ class IndexBuffer : public GraphicStageAbstraction
 public:
 	IndexBuffer(Graphics& graphics, vector<unsigned short>& indices);
 	void StageToPipeline(Graphics& graphics) override;
+	inline UINT GetIndicesCount() const noexcept { return indices_count_; }
 private:
-	UINT indeces_count_; // size of the vector
+	UINT indices_count_; // size of the vector
 	ComPtr<ID3D11Buffer> pIndexBuffer; // pointer to index buffer
 };
 

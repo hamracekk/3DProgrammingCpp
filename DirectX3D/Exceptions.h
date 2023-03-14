@@ -11,7 +11,7 @@
 
 using namespace std;
 
-enum class EXCEPTIONTYPE { WINDOWS, GRAPHICS, NOGRAPHICS };
+enum class EXCEPTIONTYPE { WINDOWS, GRAPHICS, NOGRAPHICS, DISPLAY };
 
 /// <summary>
 /// definition of type for own enum translation to string
@@ -75,6 +75,18 @@ public:
 	inline NoGraphicsException(size_t line, const char* file) noexcept
 		: BaseException(line, file) {};
 	inline EXCEPTIONTYPE getType() const noexcept override { return EXCEPTIONTYPE::NOGRAPHICS; };
+	inline optional<HRESULT> getHResult() const noexcept override { return optional<HRESULT>(); };
+};
+
+/// <summary>
+/// Exception used in GraphicsDraw object if there are some objects added to Draw stage incorrectly
+/// </summary>
+class GraphicsDrawException : public BaseException
+{
+public:
+	inline GraphicsDrawException(size_t line, const char* file) noexcept 
+		: BaseException(line, file) {};
+	inline EXCEPTIONTYPE getType() const noexcept override { return EXCEPTIONTYPE::DISPLAY; };
 	inline optional<HRESULT> getHResult() const noexcept override { return optional<HRESULT>(); };
 };
 

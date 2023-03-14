@@ -286,5 +286,14 @@ void Graphics::ColorBuffer(float red, float green, float blue)
 	// Clearing buffers before next frame
 	pDevContext->ClearRenderTargetView(pRenderTargetView.Get(), colors);
 	pDevContext->ClearDepthStencilView(pDepthStencilView.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0u);
+}
+
+/// <summary>
+/// Simple call to Device context to draw using index buffer
+/// </summary>
+/// <param name="indexCount">Number of indices to draw</param>
+void Graphics::DisplayUsingIndexBuffer(unsigned int indexCount)
+{
+	pDevContext->DrawIndexed(indexCount, 0u, 0u);
 };
 

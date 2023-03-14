@@ -13,6 +13,9 @@
 using namespace Microsoft::WRL;
 using namespace DirectX;
 
+#include "GraphicDrawObject.h"
+
+
 class Graphics
 {
 	friend class GraphicStageAbstraction;
@@ -32,7 +35,7 @@ public:
 	bool Initialize(HWND hwnd, int width, int height);
 	void FlipFrame();
 	void ColorBuffer(float red, float green, float blue);
-
+	void DisplayUsingIndexBuffer(unsigned int indexCount);
 	void DrawTriangle(float angle, float x, float z)
 	{
 		HRESULT hres;
