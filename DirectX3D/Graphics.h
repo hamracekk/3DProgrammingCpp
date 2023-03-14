@@ -4,6 +4,7 @@
 
 #include "Includer.h"
 #include "Exceptions.h"
+#include "VertexBuffer.h"
 
 #include <wrl.h> // We will use ComPtr -> release object automaticly (e.g. in case of exception)
 #include <d3d11.h>

@@ -20,7 +20,7 @@ public:
 	GraphicsDrawObject(const GraphicsDrawObject&) = delete;
 	void Display(Graphics& graphics) const;
 	virtual XMMATRIX TransformMatrix() const = 0;
-	virtual void Update(float diff) = 0;
+	virtual void Update(float timeDiff) = 0;
 	virtual ~GraphicsDrawObject() = default;
 	void InsertGraphicsStageObj(unique_ptr<GraphicStageAbstraction> gsa);
 	void InitindexBuffer(unique_ptr<class IndexBuffer> gsa);

@@ -164,6 +164,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Application.cpp" />
+    <ClCompile Include="CubeGraphicsDrawObject.cpp" />
     <ClCompile Include="Exceptions.cpp" />
     <ClCompile Include="GraphicDrawObject.cpp" />
     <ClCompile Include="Graphics.cpp" />
@@ -172,14 +173,17 @@
     <ClCompile Include="InputLayout.cpp" />
     <ClCompile Include="KeyboardWin.cpp" />
     <ClCompile Include="MainWindowsEntry.cpp" />
+    <ClCompile Include="PixelShader.cpp" />
     <ClCompile Include="PrimitiveTopology.cpp" />
     <ClCompile Include="VertexBuffer.cpp" />
+    <ClCompile Include="VertexShader.cpp" />
     <ClCompile Include="WindowWrapper.cpp" />
     <ClCompile Include="WinMouse.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application.h" />
     <ClInclude Include="ConstantBuffer.h" />
+    <ClInclude Include="CubeGraphicsDrawObject.h" />
     <ClInclude Include="Exceptions.h" />
     <ClInclude Include="GraphicDrawObject.h" />
     <ClInclude Include="Graphics.h" />
@@ -188,8 +192,10 @@
     <ClInclude Include="IndexBuffer.h" />
     <ClInclude Include="InputLayout.h" />
     <ClInclude Include="KeyboardWin.h" />
+    <ClInclude Include="PixelShader.h" />
     <ClInclude Include="PrimitiveTopology.h" />
     <ClInclude Include="VertexBuffer.h" />
+    <ClInclude Include="VertexShader.h" />
     <ClInclude Include="WindowWrapper.h" />
     <ClInclude Include="WinMouse.h" />
   </ItemGroup>

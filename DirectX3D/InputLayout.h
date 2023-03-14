@@ -6,7 +6,7 @@
 /// <summary>
 /// Class representing construction/creation of input layout stage
 /// </summary>
-class InputLayout : GraphicStageAbstraction
+class InputLayout : public GraphicStageAbstraction
 {
 public:
 	InputLayout(Graphics& graphics, vector<D3D11_INPUT_ELEMENT_DESC> arrayOfDescriptors, ID3DBlob* pVertexShaderBlob);
